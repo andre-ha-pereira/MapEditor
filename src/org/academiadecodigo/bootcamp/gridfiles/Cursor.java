@@ -8,12 +8,12 @@ public class Cursor {
     private Rectangle myPosition;
     private int col;
     private int row;
-    private MyGrid myGrid;
+    private Grid grid;
 
-    public Cursor(MyGrid myGrid) {
+    public Cursor(Grid grid) {
         this.col = 0;
         this.row = 0;
-        this.myGrid = myGrid;
+        this.grid = grid;
     }
 
     public void move(MoveDirection direction) {
@@ -37,45 +37,54 @@ public class Cursor {
     }
 
     private void moveRight() {
-        if (col == myGrid.getCol() - 1) {
+        if (col == grid.getCol() - 1) {
+            System.out.println(grid.getCol());
+            myPosition.translate(-(grid.getCol()-1) * grid.getCELL(),0);
+            col = 0;
             return;
         }
         col++;
         positionDelete();
-        myPosition.translate(1* myGrid.getCELL(), 0);
+        myPosition.translate( grid.getCELL(), 0);
         positionDraw();
     }
 
     private void moveLeft() {
         if (col == 0) {
+            myPosition.translate((grid.getCol()-1) * grid.getCELL(),0);
+            col = grid.getCol() - 1;
             return;
         }
         col--;
         positionDelete();
-        myPosition.translate(-1* myGrid.getCELL(), 0);
+        myPosition.translate(-grid.getCELL(), 0);
         positionDraw();
     }
 
     private void moveUp() {
         if (row == 0) {
+            myPosition.translate(0, (grid.getRow()-1) * grid.getCELL());
+            row = grid.getRow() - 1;
             return;
         }
         row--;
         positionDelete();
-        myPosition.translate(0, -1 * myGrid.getCELL());
+        myPosition.translate(0, -grid.getCELL());
         positionDraw();
     }
 
     private void moveDown() {
-        if (row == myGrid.getRow() - 1) {
+        if (row == grid.getRow() - 1) {
+            myPosition.translate(0,-(grid.getRow()-1) * grid.getCELL());
+            row = 0;
             return;
         }
         row++;
-        myPosition.translate(0, myGrid.getCELL());
+        myPosition.translate(0, grid.getCELL());
     }
 
     public void positionColor() {
-        if(myGrid.isPaint(col,row)) {
+        if(grid.isPaint(col,row)) {
             positionDelete();
             myPosition.setColor(Color.GREEN);
             positionDraw();
@@ -87,7 +96,7 @@ public class Cursor {
     }
 
     public void createMyPosition() {
-        myPosition = new Rectangle(positionCol(),positionRow(), myGrid.getCELL(),myGrid.getCELL());
+        myPosition = new Rectangle(positionCol(),positionRow(), grid.getCELL(), grid.getCELL());
         myPosition.setColor(Color.RED);
         positionDraw();
     }
@@ -101,11 +110,11 @@ public class Cursor {
     }
 
     public int positionCol() {
-        return col * myGrid.getCELL() + myGrid.getPADDING();
+        return col * grid.getCELL() + grid.getPADDING();
     }
 
     public int positionRow() {
-        return row * myGrid.getCELL() + myGrid.getPADDING();
+        return row * grid.getCELL() + grid.getPADDING();
     }
 
     public int getCol() {

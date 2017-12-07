@@ -3,85 +3,32 @@ package org.academiadecodigo.bootcamp;
 
 import org.academiadecodigo.bootcamp.gridfiles.Cursor;
 import org.academiadecodigo.bootcamp.gridfiles.MoveDirection;
-import org.academiadecodigo.bootcamp.gridfiles.MyGrid;
+import org.academiadecodigo.bootcamp.gridfiles.Grid;
 import org.academiadecodigo.simplegraphics.keyboard.Keyboard;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEvent;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEventType;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardHandler;
 
-import java.io.*;
-
 public class MapEditor implements KeyboardHandler{
 
-    private MyGrid myGrid;
+    private Grid grid;
     private Cursor myPosition;
+    private FileManager filemanager;
 
     public MapEditor(int cols, int rows) {
-        myGrid = new MyGrid(cols,rows);
-        myGrid.createGrid();
-        myPosition = new Cursor(myGrid);
+        grid = new Grid(cols,rows);
+        grid.createGrid();
+        filemanager = new FileManager(grid);
+        myPosition = new Cursor(grid);
         myPosition.createMyPosition();
         keyboardInit();
     }
 
     public void keyboardInit() {
         Keyboard keyboard = new Keyboard(this);
-        pressUpEvent(keyboard);
-        pressDownEvent(keyboard);
-        pressLeftEvent(keyboard);
-        pressRightEvent(keyboard);
-        pressSpaceEvent(keyboard);
-        pressSEvent(keyboard);
-        pressLEvent(keyboard);
-    }
-
-    private void pressUpEvent(Keyboard keyboard) {
-        KeyboardEvent pressUp = new KeyboardEvent();
-        pressUp.setKey(KeyboardEvent.KEY_UP);
-        pressUp.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
-        keyboard.addEventListener(pressUp);
-    }
-
-    private void pressDownEvent(Keyboard keyboard) {
-        KeyboardEvent pressDown = new KeyboardEvent();
-        pressDown.setKey(KeyboardEvent.KEY_DOWN);
-        pressDown.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
-        keyboard.addEventListener(pressDown);
-    }
-
-    private void pressLeftEvent(Keyboard keyboard) {
-        KeyboardEvent pressLeft = new KeyboardEvent();
-        pressLeft.setKey(KeyboardEvent.KEY_LEFT);
-        pressLeft.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
-        keyboard.addEventListener(pressLeft);
-    }
-
-    private void pressRightEvent(Keyboard keyboard) {
-        KeyboardEvent pressRight = new KeyboardEvent();
-        pressRight.setKey(KeyboardEvent.KEY_RIGHT);
-        pressRight.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
-        keyboard.addEventListener(pressRight);
-    }
-
-    private void pressSpaceEvent(Keyboard keyboard) {
-        KeyboardEvent pressSpace = new KeyboardEvent();
-        pressSpace.setKey(KeyboardEvent.KEY_SPACE);
-        pressSpace.setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
-        keyboard.addEventListener(pressSpace);
-    }
-    //SAVE BUTTON is S
-    private void pressSEvent(Keyboard keyboard) {
-        KeyboardEvent pressS = new KeyboardEvent();
-        pressS.setKey(KeyboardEvent.KEY_S);
-        pressS.setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
-        keyboard.addEventListener(pressS);
-    }
-    //LOAD BUTTON IS L
-    private void pressLEvent(Keyboard keyboard) {
-        KeyboardEvent pressL = new KeyboardEvent();
-        pressL.setKey(KeyboardEvent.KEY_L);
-        pressL.setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
-        keyboard.addEventListener(pressL);
+        KeyboardEvent[] keyboardEvents = new KeyboardEvent[7];
+        setKeyboardEvents(keyboardEvents);
+        addEventsListener(keyboard, keyboardEvents);
     }
 
     private void whichDirectionPressed(KeyboardEvent e) {
@@ -105,51 +52,42 @@ public class MapEditor implements KeyboardHandler{
             paintCell();
         }
         if (e.getKey() == KeyboardEvent.KEY_S) {
-            saveState();
+            filemanager.saveState();
         }
         if (e.getKey() == KeyboardEvent.KEY_L) {
-            loadState();
+            filemanager.loadState();
         }
     }
 
-    private void loadState() {
-        BufferedReader loadbReader = null;
-        try {
-            loadbReader = new BufferedReader(new FileReader("resources/save.txt"));
-            myGrid.positionLoad(loadbReader);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (loadbReader != null) {
-                try {
-                    loadbReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
     private void paintCell() {
-            myGrid.paint(myPosition.getCol(), myPosition.getRow());
+            grid.paint(myPosition.getCol(), myPosition.getRow());
             myPosition.positionColor();
     }
 
-    private void saveState() {
-        FileOutputStream savefile = null;
-        try {
-            savefile = new FileOutputStream("resources/save.txt");
-            myGrid.positionStates(savefile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (savefile != null) {
-                try {
-                    savefile.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    private void setKeyboardEvents(KeyboardEvent[] keyboardEvents) {
+        for(int i = 0; i < keyboardEvents.length; i++) {
+            keyboardEvents[i] = new KeyboardEvent();
+        }
+        keyboardEvents[0].setKey(KeyboardEvent.KEY_UP);
+        keyboardEvents[0].setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        keyboardEvents[1].setKey(KeyboardEvent.KEY_DOWN);
+        keyboardEvents[1].setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        keyboardEvents[2].setKey(KeyboardEvent.KEY_LEFT);
+        keyboardEvents[2].setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        keyboardEvents[3].setKey(KeyboardEvent.KEY_RIGHT);
+        keyboardEvents[3].setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        keyboardEvents[4].setKey(KeyboardEvent.KEY_SPACE);
+        keyboardEvents[4].setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
+        keyboardEvents[5].setKey(KeyboardEvent.KEY_S);
+        keyboardEvents[5].setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
+        keyboardEvents[6].setKey(KeyboardEvent.KEY_L);
+        keyboardEvents[6].setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
+    }
+
+    public void addEventsListener (Keyboard keyboard, KeyboardEvent[] keyboardEvents) {
+        for(int i = 0; i < keyboardEvents.length; i++) {
+            keyboard.addEventListener(keyboardEvents[i]);
         }
     }
 
